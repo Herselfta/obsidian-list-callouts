@@ -19,9 +19,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@codemirror/language": "https://github.com/lishid/cm-language#1aadcc247f20ccfda76424a9f853dbb4ee203fdc",
     "@codemirror/state": "^6.0.0",
     "@codemirror/view": "^6.0.0",
-    "@codemirror/language": "https://github.com/lishid/cm-language#1aadcc247f20ccfda76424a9f853dbb4ee203fdc",
     "@trivago/prettier-plugin-sort-imports": "4.2.0",
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
@@ -32,9 +32,11 @@
     "obsidian": "^1.1.1",
     "prettier": "^3.0.3",
     "tslib": "2.3.1",
-    "typescript": "4.4.4"
+    "typescript": "^6.0.2"
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@lezer/highlight": "^1.2.3",
     "escape-string-regexp": "^5.0.0",
     "fuse.js": "^6.6.2"
   }

@@ -1,5 +1,5 @@
 {
-  "compilerOptions": {
+  "compilerOptions": { "ignoreDeprecations": "6.0",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",

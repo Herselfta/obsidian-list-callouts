@@ -40,6 +40,26 @@ const DEFAULT_SETTINGS: ListCalloutsSettings = [
     color: '158, 158, 158',
     char: '%',
   },
+  {
+    color: '255, 145, 0',
+    char: '？',
+  },
+  {
+    color: '255, 23, 68',
+    char: '！',
+  },
+  {
+    color: '124, 77, 255',
+    char: '～',
+  },
+  {
+    color: '0, 200, 83',
+    char: '￥',
+  },
+  {
+    color: '0, 200, 83',
+    char: '¥',
+  },
 ];
 
 export default class ListCalloutsPlugin extends Plugin {
@@ -92,8 +112,13 @@ export default class ListCalloutsPlugin extends Plugin {
       }, {}),
       re: new RegExp(
         `(^\\s*[-*+](?: \\[.\\])? |^\\s*\\d+[\\.\\)](?: \\[.\\])? )(${
-          this.settings.map(callout => escapeStringRegexp(callout.char)).join('|')
-        }) `
+          this.settings
+            .map(callout => (callout && callout.char) || '')
+            .filter(char => typeof char === 'string' && char.trim().length > 0)
+            .sort((a, b) => b.length - a.length)
+            .map(char => escapeStringRegexp(char))
+            .join('|')
+        })(?:\\s+|$)`
       ),
     }
   }
@@ -106,8 +131,13 @@ export default class ListCalloutsPlugin extends Plugin {
       }, {}),
       re: new RegExp(
         `^(${
-          this.settings.map(callout => escapeStringRegexp(callout.char)).join('|')
-        }) `
+          this.settings
+            .map(callout => (callout && callout.char) || '')
+            .filter(char => typeof char === 'string' && char.trim().length > 0)
+            .sort((a, b) => b.length - a.length)
+            .map(char => escapeStringRegexp(char))
+            .join('|')
+        })(?:\\s+|$)`
       ),
     }
   }

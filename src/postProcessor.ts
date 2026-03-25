@@ -111,7 +111,7 @@ export function buildPostProcessor(
                 }
               )
             );
-            f.append(text.slice(callout.char.length));
+            f.append(text.slice(match[0].length));
           })
         );
 
