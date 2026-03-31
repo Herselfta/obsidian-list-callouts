@@ -143,19 +143,33 @@ export default class ListCalloutsPlugin extends Plugin {
   }
 
   async loadSettings() {
-    const loadedSettings = (await this.loadData()) as Callout[];
-    const customCallouts = loadedSettings?.filter(
+    const loadedData = await this.loadData();
+    const loadedSettings = (Array.isArray(loadedData) ? loadedData : []) as Callout[];
+
+    const customCallouts = loadedSettings.filter(
       (callout) => callout.custom === true
     );
-    const modifiedBuiltins = loadedSettings?.filter(
+    const modifiedBuiltins = loadedSettings.filter(
       (callout) => callout.custom !== true
     );
 
-    this.settings = DEFAULT_SETTINGS.map((s, i) => {
-      return Object.assign({}, s, modifiedBuiltins ? modifiedBuiltins[i] : {});
+    const builtinMap = new Map(modifiedBuiltins.map((m) => [m.char, m]));
+
+    this.settings = DEFAULT_SETTINGS.map((defaultCallout) => {
+      const userCallout = builtinMap.get(defaultCallout.char);
+      if (userCallout) {
+        builtinMap.delete(defaultCallout.char);
+      }
+      return Object.assign({}, defaultCallout, userCallout);
     });
 
-    if (customCallouts) {
+    // If there are any builtins in the save data that weren't matched (meaning their char was changed)
+    // we should still keep them.
+    for (const [_, callout] of builtinMap) {
+      this.settings.push(callout);
+    }
+
+    if (customCallouts.length > 0) {
       this.settings.push(...customCallouts);
     }
   }
