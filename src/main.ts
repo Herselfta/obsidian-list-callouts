@@ -63,9 +63,9 @@ const DEFAULT_SETTINGS: ListCalloutsSettings = [
 ];
 
 export default class ListCalloutsPlugin extends Plugin {
-  settings: ListCalloutsSettings;
-  emitter: Events;
-  postProcessorConfig: CalloutConfig;
+  settings!: ListCalloutsSettings;
+  emitter!: Events;
+  postProcessorConfig!: CalloutConfig;
 
   async onload() {
     await this.loadSettings();

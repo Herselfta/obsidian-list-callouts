@@ -8,7 +8,7 @@ function getFirstTextNode(li: HTMLElement) {
       const descriptionNode = (node as HTMLElement).firstElementChild
       if (descriptionNode?.classList.contains('task-description')) {
         const textNode = descriptionNode.firstElementChild?.firstChild;
-        if (textNode.nodeType === document.TEXT_NODE) {
+        if (textNode?.nodeType === document.TEXT_NODE) {
           return textNode;
         }
       }
@@ -25,7 +25,7 @@ function getFirstTextNode(li: HTMLElement) {
       continue;
     }
 
-    if ((node as Text).nodeValue.trim() === '') {
+    if ((node as Text).nodeValue?.trim() === '') {
       continue;
     }
 
@@ -91,7 +91,7 @@ export function buildPostProcessor(
       const match = text.match(config.re);
       const callout = match ? config.callouts[match[1]] : null;
 
-      if (callout) {
+      if (match && callout) {
         li.addClass('lc-list-callout');
         li.setAttribute('data-callout', callout.char);
         li.style.setProperty('--lc-callout-color', callout.color);

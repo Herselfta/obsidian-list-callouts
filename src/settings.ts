@@ -74,7 +74,7 @@ function attachIconMenu(
   btn: ButtonComponent,
   onSelect: (icon: null | string) => void
 ) {
-  let menuRef: HTMLDivElement = null;
+  let menuRef: HTMLDivElement | null = null;
   const btnEl = btn.buttonEl;
 
   btn.onClick((e) => {
@@ -82,7 +82,7 @@ function attachIconMenu(
     const scrollParent = btnEl.closest('.vertical-tab-content');
     const destroyEventHandlers = () => {
       btnEl.win.removeEventListener('click', clickOutside);
-      scrollParent.removeEventListener('scroll', scroll);
+      scrollParent?.removeEventListener('scroll', scroll);
     };
     const clickOutside = (e: MouseEvent) => {
       if (menuRef) {
@@ -97,12 +97,15 @@ function attachIconMenu(
     };
 
     const calcMenuPos = () => {
+      if (!menuRef) return;
+      const scrollParentTop = scrollParent ? scrollParent.scrollTop : 0;
       let pos = `top: ${
-        btnEl.offsetTop + btnEl.offsetHeight + 2 - scrollParent.scrollTop
+        btnEl.offsetTop + btnEl.offsetHeight + 2 - scrollParentTop
       }px;`;
       if (Platform.isMobile) {
+        const offsetParentWidth = btnEl.offsetParent ? btnEl.offsetParent.clientWidth : 0;
         pos += ` right: ${
-          btnEl.offsetParent.clientWidth -
+          offsetParentWidth -
           (btnEl.offsetLeft + btnEl.offsetWidth)
         }px;`;
       } else {
@@ -189,8 +192,10 @@ function attachIconMenu(
                 btn.setIcon(icon);
                 onSelect(icon);
                 destroyEventHandlers();
-                menuRef.detach();
-                menuRef = null;
+                if (menuRef) {
+                  menuRef.detach();
+                  menuRef = null;
+                }
               });
             }
           );
@@ -200,7 +205,7 @@ function attachIconMenu(
 
     btnEl.win.setTimeout(() => {
       btnEl.win.addEventListener('click', clickOutside);
-      scrollParent.addEventListener('scroll', scroll);
+      scrollParent?.addEventListener('scroll', scroll);
     }, 10);
   });
 }
@@ -302,7 +307,7 @@ function buildNewCalloutSetting(
   const callout: Callout = {
     char: '',
     color: '158, 158, 158',
-    icon: null,
+    icon: undefined,
     custom: true,
   };
 

@@ -13,7 +13,7 @@ import {
   ViewUpdate,
   WidgetType,
 } from '@codemirror/view';
-import { setIcon } from 'obsidian';
+import { editorLivePreviewField, setIcon } from 'obsidian';
 
 import { CalloutConfig } from './settings';
 
@@ -77,7 +77,7 @@ export const calloutDecoration = (char: string, color: string) =>
 
 export const calloutsConfigField = StateField.define<CalloutConfig>({
   create() {
-    return { callouts: {}, re: null };
+    return { callouts: {}, re: null as unknown as RegExp };
   },
   update(state, tr) {
     for (const e of tr.effects) {
@@ -91,12 +91,14 @@ export const calloutsConfigField = StateField.define<CalloutConfig>({
 });
 
 export function buildCalloutDecos(view: EditorView, state: EditorState) {
+  const isLivePreview = state.field(editorLivePreviewField, false);
   const config = state.field(calloutsConfigField);
-  if (!config?.re || !view.visibleRanges.length) return Decoration.none;
+  if (!isLivePreview || !config?.re || !view.visibleRanges.length) return Decoration.none;
 
   const builder = new RangeSetBuilder<Decoration>();
   const lastRange = view.visibleRanges[view.visibleRanges.length - 1];
   const tree = ensureSyntaxTree(state, lastRange.to, 50);
+  if (!tree) return Decoration.none;
   const { doc } = state;
 
   let lastEnd = -1;
@@ -116,7 +118,7 @@ export function buildCalloutDecos(view: EditorView, state: EditorState) {
 
           lastEnd = to;
 
-          if (callout) {
+          if (match && callout) {
             const labelPos = lineFrom + match[1].length;
 
             // Set the line class and callout color
@@ -155,9 +157,14 @@ export const calloutExtension = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate) {
+      const livePreviewChanged =
+        update.state.field(editorLivePreviewField, false) !==
+        update.startState.field(editorLivePreviewField, false);
+
       if (
         update.docChanged ||
         update.viewportChanged ||
+        livePreviewChanged ||
         update.transactions.some((tr) =>
           tr.effects.some((e) => e.is(setConfig))
         )
