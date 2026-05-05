@@ -130,7 +130,7 @@ export default class ListCalloutsPlugin extends Plugin {
         return record
       }, {}),
       re: new RegExp(
-        `^(${
+        `^(\\s*)(${
           this.settings
             .map(callout => (callout && callout.char) || '')
             .filter(char => typeof char === 'string' && char.trim().length > 0)

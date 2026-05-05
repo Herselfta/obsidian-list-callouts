@@ -181,6 +181,9 @@ settings:
   z-index: 1;
   position: relative;
   display: block;
+  margin-left: calc(-1 * var(--lc-bg-left-reading, 33px));
+  padding-left: var(--lc-bg-left-reading, 33px);
+  border-radius: 4px;
 }
 
 .lc-li-wrapper::after {
@@ -188,12 +191,14 @@ settings:
   position: absolute;
   background-color: rgba(var(--lc-callout-color), var(--lc-bg-opacity-light));
   top: calc(-1 * var(--lc-bg-top-reading) + 1px);
-  right: calc(-1 * var(--lc-bg-right-reading) + 1px);
+  right: calc(-1 * var(--lc-bg-right-reading, 0px) + 1px);
   bottom: calc(-1 * var(--lc-bg-bottom-reading) + 1px);
-  left: calc(-1 * var(--lc-bg-left-reading) + 1px);
+  left: 0;
   content: "";
   display: block;
   border-radius: 4px;
+  width: 100%;
+  height: 100%;
 }
 
 .theme-dark .lc-li-wrapper::after {

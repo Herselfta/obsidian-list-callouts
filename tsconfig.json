@@ -1,19 +1,18 @@
 {
-  "compilerOptions": { "ignoreDeprecations": "6.0",
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
     "importHelpers": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "isolatedModules": true,
     "jsx": "react",
     "lib": ["dom", "es6", "scripthost", "es2018"],
-    "module": "ESNext",
-    "moduleResolution": "node",
     "noImplicitAny": true,
-    "skipLibCheck": true,
-    "target": "es2018"
+    "skipLibCheck": true
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

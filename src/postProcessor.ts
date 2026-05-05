@@ -1,35 +1,27 @@
 import { MarkdownPostProcessor, setIcon } from 'obsidian';
-
 import { CalloutConfig } from './settings';
 
-function getFirstTextNode(li: HTMLElement) {
-  for (const node of Array.from(li.childNodes)) {
-    if (node.nodeType === document.ELEMENT_NODE && (node as HTMLElement).classList.contains('tasks-list-text')) {
-      const descriptionNode = (node as HTMLElement).firstElementChild
-      if (descriptionNode?.classList.contains('task-description')) {
-        const textNode = descriptionNode.firstElementChild?.firstChild;
-        if (textNode?.nodeType === document.TEXT_NODE) {
-          return textNode;
-        }
-      }
-    }
-
+function getFirstTextNode(node: Node): Node | null {
+  if (node.nodeType === document.ELEMENT_NODE) {
+    const el = node as HTMLElement;
     if (
-      node.nodeType === document.ELEMENT_NODE &&
-      (node as HTMLElement).tagName === 'P'
+      el.hasClass('list-bullet') ||
+      el.hasClass('task-list-item-checkbox') ||
+      el.tagName === 'INPUT'
     ) {
-      return node.firstChild;
+      return null;
     }
 
-    if (node.nodeType !== document.TEXT_NODE) {
-      continue;
+    for (const child of Array.from(el.childNodes)) {
+      const result = getFirstTextNode(child);
+      if (result) return result;
     }
+  }
 
-    if ((node as Text).nodeValue?.trim() === '') {
-      continue;
+  if (node.nodeType === document.TEXT_NODE) {
+    if (node.nodeValue?.trim() !== '') {
+      return node;
     }
-
-    return node;
   }
 
   return null;
@@ -60,8 +52,36 @@ function wrapLiContent(li: HTMLElement) {
     toReplace.push(child);
   }
 
-  const wrapper = createSpan({ cls: 'lc-li-wrapper' });
+  // If there's already a P tag (loose list), reuse it as the wrapper
+  const meaningfulNodes = toReplace.filter(
+    (n) => n.nodeType !== document.TEXT_NODE || n.nodeValue?.trim() !== ''
+  );
 
+  if (
+    meaningfulNodes.length === 1 &&
+    (meaningfulNodes[0] as HTMLElement).tagName === 'P'
+  ) {
+    const p = meaningfulNodes[0] as HTMLElement;
+    p.addClass('lc-li-wrapper');
+    p.addClass('lc-is-p');
+    if (
+      li.querySelector(
+        'input.task-list-item-checkbox, input[type="checkbox"], .task-list-item-checkbox'
+      )
+    ) {
+      p.addClass('lc-has-checkbox');
+    }
+    return;
+  }
+
+  const wrapper = createSpan({ cls: 'lc-li-wrapper' });
+  if (
+    li.querySelector(
+      'input.task-list-item-checkbox, input[type="checkbox"], .task-list-item-checkbox'
+    )
+  ) {
+    wrapper.addClass('lc-has-checkbox');
+  }
   toReplace.forEach((node) => wrapper.append(node));
 
   if (insertBefore) {
@@ -89,20 +109,23 @@ export function buildPostProcessor(
       if (!text) return;
 
       const match = text.match(config.re);
-      const callout = match ? config.callouts[match[1]] : null;
+      // match[1] is leading whitespace, match[2] is the callout char
+      const callout = match ? config.callouts[match[2]] : null;
 
       if (match && callout) {
         li.addClass('lc-list-callout');
         li.setAttribute('data-callout', callout.char);
         li.style.setProperty('--lc-callout-color', callout.color);
 
-        node.replaceWith(
+        (node as any).replaceWith(
           createFragment((f) => {
+            // Restore leading whitespace
+            f.append(match[1]);
             f.append(
               createSpan(
                 {
                   cls: 'lc-list-marker',
-                  text: text.slice(0, callout.char.length),
+                  text: match[2],
                 },
                 (span) => {
                   if (callout.icon) {
@@ -111,6 +134,7 @@ export function buildPostProcessor(
                 }
               )
             );
+            // Append rest of text
             f.append(text.slice(match[0].length));
           })
         );
